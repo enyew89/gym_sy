@@ -1,0 +1,61 @@
+{
+  "test_accounts": [
+    {
+      "name": "Abebe Kebede",
+      "email": "admin@gympro.com",
+      "password": "password123",
+      "role": "admin",
+      "phone": "+251911223344"
+    }
+  ],
+  "membership_plans": [
+    {
+      "planId": "p1",
+      "name": "Basic",
+      "price": 500,
+      "currency": "ETB",
+      "durationDays": 30,
+      "features": ["Gym floor access", "Locker room usage", "Standard cardio & weights"],
+      "activeSubscribers": 0
+    },
+    {
+      "planId": "p2",
+      "name": "Standard",
+      "price": 1000,
+      "currency": "ETB",
+      "durationDays": 30,
+      "features": ["All Basic features", "Group fitness classes", "Sauna & steam room", "Diet consultation"],
+      "activeSubscribers": 0,
+      "isPopular": true
+    },
+    {
+      "planId": "p3",
+      "name": "Premium",
+      "price": 2000,
+      "currency": "ETB",
+      "durationDays": 30,
+      "features": [
+        "All Standard features",
+        "Dedicated Personal Trainer",
+        "AI workout assistant",
+        "Priority locker & towel service",
+        "Guest passes (2/mo)"
+      ],
+      "activeSubscribers": 0
+    },
+    {
+      "planId": "p4",
+      "name": "Annual VIP",
+      "price": 18000,
+      "currency": "ETB",
+      "durationDays": 365,
+      "features": ["All Premium features for 1 full year", "3 months free included", "Unlimited access to all studios"],
+      "activeSubscribers": 0
+    }
+  ],
+  "sample_members": [],
+  "classes": [],
+  "equipment_inventory": [],
+  "recent_payments": [],
+  "member_biometrics_and_lifts": []
+}

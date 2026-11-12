@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  @apply bg-[#0a0a0c] text-white antialiased;
+}
+
+/* Ensure all select and option elements have high-contrast, fully visible text */
+select {
+  color: #0f172a;
+}
+
+select option,
+option {
+  color: #0f172a;
+  background-color: #ffffff;
+}
+
+/* Explicit dark selects (e.g. MemberRegistrationPage or dark containers) */
+select.dark-select,
+select[class*="bg-[#0a0a0c]"],
+select[class*="bg-zinc-900"],
+select[class*="bg-zinc-950"],
+select[class*="bg-black"] {
+  color: #ffffff;
+}
+
+select.dark-select option,
+select[class*="bg-[#0a0a0c]"] option,
+select[class*="bg-zinc-900"] option,
+select[class*="bg-zinc-950"] option,
+select[class*="bg-black"] option {
+  color: #f4f4f5;
+  background-color: #18181b;
+}
+
+/* Custom dark athletic scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0c;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ea580c;
+}
+
+/* Smooth transitions */
+* {
+  @apply transition-colors duration-150;
+}
