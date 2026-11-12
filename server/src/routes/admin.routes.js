@@ -34,8 +34,25 @@ router.get('/overview', async (req, res) => {
     const totalReceptionists = await User.countDocuments({ role: 'receptionist' });
     const totalStaff = totalTrainers + totalReceptionists;
 
-    // 3. Plans
-    const plans = await Plan.find().sort({ price: 1 });
+    // 3. Plans with real-time active subscriber counts
+    const rawPlans = await Plan.find().sort({ price: 1 }).lean();
+    const activePlanCounts = await User.aggregate([
+      { $match: { role: 'member', status: 'active' } },
+      { $group: { _id: { $toLower: '$plan' }, count: { $sum: 1 } } },
+    ]);
+    const planCountMap = {};
+    activePlanCounts.forEach((c) => {
+      if (c._id) planCountMap[c._id.trim()] = c.count;
+    });
+    const plans = rawPlans.map((p) => {
+      const key = (p.name || '').toLowerCase().trim();
+      const realCount = planCountMap[key] || 0;
+      return {
+        ...p,
+        activeSubscribers: realCount,
+        memberCount: realCount,
+      };
+    });
 
     // 4. Financial Performance & Revenue
     const allPayments = await Payment.find();

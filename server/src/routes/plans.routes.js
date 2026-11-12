@@ -1,21 +1,54 @@
 import express from 'express';
 import Plan from '../models/Plan.js';
+import User from '../models/User.js';
 import { requireAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
 
 /**
  * @route   GET /api/plans
- * @desc    Get all membership plans
+ * @desc    Get all membership plans with dynamic, real-time active subscriber counts
  * @access  Public
  */
 router.get('/', async (req, res) => {
   try {
-    const plans = await Plan.find().sort({ price: 1 });
+    const plans = await Plan.find().sort({ price: 1 }).lean();
+
+    // Calculate real active subscribers for each plan dynamically from User collection
+    const activeCounts = await User.aggregate([
+      {
+        $match: {
+          role: 'member',
+          status: 'active',
+        },
+      },
+      {
+        $group: {
+          _id: { $toLower: '$plan' },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const countMap = {};
+    activeCounts.forEach((c) => {
+      if (c._id) countMap[c._id.trim()] = c.count;
+    });
+
+    const enrichedPlans = plans.map((plan) => {
+      const planNameKey = (plan.name || '').toLowerCase().trim();
+      const realSubscribers = countMap[planNameKey] || 0;
+      return {
+        ...plan,
+        activeSubscribers: realSubscribers,
+        memberCount: realSubscribers,
+      };
+    });
+
     return res.json({
       success: true,
-      count: plans.length,
-      plans,
+      count: enrichedPlans.length,
+      plans: enrichedPlans,
     });
   } catch (error) {
     return res.status(500).json({
