@@ -250,8 +250,8 @@ router.post('/chapa/initialize', isAuthenticated, async (req, res) => {
     const tx_ref = `GP-CHAPA-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
     const receiptNo = `RCP-${Date.now().toString().slice(-6)}`;
 
-    // Fallback client return url
-    const clientBase = process.env.CLIENT_URL || 'http://localhost:5173';
+    // Fallback client return url (uses CLIENT_URL, or dynamically detects the live host)
+    const clientBase = process.env.CLIENT_URL || `${req.protocol}://${req.get('host')}`;
     const finalReturnUrl =
       returnUrl || `${clientBase}/member/payments?chapa_status=verify&tx_ref=${tx_ref}`;
     const callbackUrl = `${req.protocol}://${req.get('host')}/api/payments/chapa/webhook`;
