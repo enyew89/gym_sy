@@ -77,12 +77,12 @@ function AppRoutes() {
       <Route path="/trainer/ai-assistant" element={<ProtectedRoute allowedRoles={['trainer']}><DashboardLayout><TrainerAI /></DashboardLayout></ProtectedRoute>} />
 
       {/* Receptionist routes */}
-      <Route path="/receptionist" element={<ProtectedRoute allowedRoles={['receptionist']}><DashboardLayout><ReceptionistDashboard /></DashboardLayout></ProtectedRoute>} />
-      <Route path="/receptionist/checkin" element={<ProtectedRoute allowedRoles={['receptionist']}><DashboardLayout><QRCheckin /></DashboardLayout></ProtectedRoute>} />
-      <Route path="/receptionist/register" element={<ProtectedRoute allowedRoles={['receptionist']}><DashboardLayout><MemberRegistration /></DashboardLayout></ProtectedRoute>} />
-      <Route path="/receptionist/payments" element={<ProtectedRoute allowedRoles={['receptionist']}><DashboardLayout><ReceptionistPayments /></DashboardLayout></ProtectedRoute>} />
-      <Route path="/receptionist/bookings" element={<ProtectedRoute allowedRoles={['receptionist']}><DashboardLayout><ClassBookings /></DashboardLayout></ProtectedRoute>} />
-      <Route path="/receptionist/attendance" element={<ProtectedRoute allowedRoles={['receptionist']}><DashboardLayout><AttendanceRecords /></DashboardLayout></ProtectedRoute>} />
+      <Route path="/receptionist" element={<ProtectedRoute allowedRoles={['receptionist', 'admin']}><DashboardLayout><ReceptionistDashboard /></DashboardLayout></ProtectedRoute>} />
+      <Route path="/receptionist/checkin" element={<ProtectedRoute allowedRoles={['receptionist', 'admin']}><DashboardLayout><QRCheckin /></DashboardLayout></ProtectedRoute>} />
+      <Route path="/receptionist/register" element={<ProtectedRoute allowedRoles={['receptionist', 'admin']}><DashboardLayout><MemberRegistration /></DashboardLayout></ProtectedRoute>} />
+      <Route path="/receptionist/payments" element={<ProtectedRoute allowedRoles={['receptionist', 'admin']}><DashboardLayout><ReceptionistPayments /></DashboardLayout></ProtectedRoute>} />
+      <Route path="/receptionist/bookings" element={<ProtectedRoute allowedRoles={['receptionist', 'admin']}><DashboardLayout><ClassBookings /></DashboardLayout></ProtectedRoute>} />
+      <Route path="/receptionist/attendance" element={<ProtectedRoute allowedRoles={['receptionist', 'admin']}><DashboardLayout><AttendanceRecords /></DashboardLayout></ProtectedRoute>} />
 
       {/* Member routes */}
       <Route path="/member" element={<ProtectedRoute allowedRoles={['member']}><DashboardLayout><MemberDashboard /></DashboardLayout></ProtectedRoute>} />

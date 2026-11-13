@@ -382,7 +382,6 @@ router.post('/checkin', async (req, res) => {
       });
     }
 
-    const now = new Date();
     const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     const dateStr = now.toISOString().split('T')[0];
 

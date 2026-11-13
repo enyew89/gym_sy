@@ -220,8 +220,19 @@ router.get('/chapa/config', (req, res) => {
 // POST initialize a Chapa checkout session
 router.post('/chapa/initialize', isAuthenticated, async (req, res) => {
   try {
-    const { planName, amount, returnUrl, phoneNumber } = req.body;
-    const user = req.user;
+    const { planName, amount, returnUrl, phoneNumber, memberId, memberEmail } = req.body;
+    let user = req.user;
+
+    // Allow staff (admin or receptionist) to initiate Chapa on behalf of a chosen member
+    if (['admin', 'receptionist'].includes(req.user.role) && (memberId || memberEmail)) {
+      if (memberId && /^[0-9a-fA-F]{24}$/.test(memberId)) {
+        const found = await User.findById(memberId);
+        if (found) user = found;
+      } else if (memberEmail) {
+        const found = await User.findOne({ email: memberEmail.toLowerCase().trim() });
+        if (found) user = found;
+      }
+    }
 
     const plan = await Plan.findOne({ name: planName || user.plan || 'Standard' });
     const chargeAmount = Number(amount) || (plan ? plan.price : 1000);

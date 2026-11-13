@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import GymLogo from '../components/GymLogo';
 import {
-  Dumbbell,
   Clock,
   MapPin,
   Phone,
@@ -11,14 +10,11 @@ import {
   ChevronRight,
   CheckCircle2,
   Users,
-  Flame,
-  Award,
   Calendar,
   ArrowRight,
   Menu,
   X,
   Search,
-  ShieldCheck,
   Star
 } from 'lucide-react';
 
@@ -259,14 +255,6 @@ export default function HomePage() {
               CLASSES
             </button>
             <button
-              onClick={() => scrollToSection('services')}
-              className={`transition-colors hover:text-orange-500 ${
-                activeNav === 'services' ? 'text-orange-500' : ''
-              }`}
-            >
-              SERVICES
-            </button>
-            <button
               onClick={() => scrollToSection('team')}
               className={`transition-colors hover:text-orange-500 ${
                 activeNav === 'team' ? 'text-orange-500' : ''
@@ -349,12 +337,6 @@ export default function HomePage() {
                 className="text-left py-2 text-zinc-300 hover:text-white"
               >
                 Classes
-              </button>
-              <button
-                onClick={() => scrollToSection('services')}
-                className="text-left py-2 text-zinc-300 hover:text-white"
-              >
-                Services
               </button>
               <button
                 onClick={() => scrollToSection('team')}
@@ -482,54 +464,7 @@ export default function HomePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 3. FOUR VALUE PILLARS (Modern High-Contrast Dark Cards) */}
-      {/* ========================================================================= */}
-      <section id="services" className="relative z-20 -mt-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-[#121215] border border-zinc-800 p-6 rounded-xl hover:border-orange-500/50 transition-all group">
-            <div className="w-12 h-12 rounded-lg bg-orange-600/10 border border-orange-500/20 text-orange-500 flex items-center justify-center mb-4 group-hover:bg-orange-600 group-hover:text-white transition-all">
-              <Dumbbell className="w-6 h-6" />
-            </div>
-            <h3 className="text-base font-bold text-white uppercase tracking-wider">Heavy Equipment</h3>
-            <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
-              Calibrated Olympic plates, precision barbells, 6 power racks, and dumbbells up to 60kg.
-            </p>
-          </div>
-
-          <div className="bg-[#121215] border border-zinc-800 p-6 rounded-xl hover:border-orange-500/50 transition-all group">
-            <div className="w-12 h-12 rounded-lg bg-orange-600/10 border border-orange-500/20 text-orange-500 flex items-center justify-center mb-4 group-hover:bg-orange-600 group-hover:text-white transition-all">
-              <Award className="w-6 h-6" />
-            </div>
-            <h3 className="text-base font-bold text-white uppercase tracking-wider">Certified Coaches</h3>
-            <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
-              Personal trainers with accredited sports science backgrounds crafting periodized programs.
-            </p>
-          </div>
-
-          <div className="bg-[#121215] border border-zinc-800 p-6 rounded-xl hover:border-orange-500/50 transition-all group">
-            <div className="w-12 h-12 rounded-lg bg-orange-600/10 border border-orange-500/20 text-orange-500 flex items-center justify-center mb-4 group-hover:bg-orange-600 group-hover:text-white transition-all">
-              <Flame className="w-6 h-6" />
-            </div>
-            <h3 className="text-base font-bold text-white uppercase tracking-wider">Dynamic Classes</h3>
-            <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
-              Daily HIIT blast, power conditioning, kettlebell complexes, and core recovery sessions.
-            </p>
-          </div>
-
-          <div className="bg-[#121215] border border-zinc-800 p-6 rounded-xl hover:border-orange-500/50 transition-all group">
-            <div className="w-12 h-12 rounded-lg bg-orange-600/10 border border-orange-500/20 text-orange-500 flex items-center justify-center mb-4 group-hover:bg-orange-600 group-hover:text-white transition-all">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <h3 className="text-base font-bold text-white uppercase tracking-wider">No Long Contracts</h3>
-            <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
-              Transparent monthly memberships with mobile money checkout and self-service account portal.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 4. ABOUT GYM SECTION */}
+      {/* 3. ABOUT GYM SECTION */}
       {/* ========================================================================= */}
       <section id="about" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
