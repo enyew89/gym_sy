@@ -72,6 +72,48 @@ router.post('/checkin', isAuthenticated, async (req, res) => {
     const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     const dateStr = now.toISOString().split('T')[0];
 
+    // Enforce strictly 1 attendance check-in per member per calendar day
+    const targetMemberId = user ? user._id.toString() : (searchId || memberId);
+    const existingAttendance = await Attendance.findOne({
+      date: dateStr,
+      $or: [
+        { memberId: targetMemberId },
+        ...(user?.email ? [{ memberEmail: user.email.toLowerCase().trim() }] : []),
+        ...(searchEmail ? [{ memberEmail: searchEmail.toLowerCase().trim() }] : []),
+      ],
+    });
+
+    if (existingAttendance) {
+      const isInside = !existingAttendance.checkOut;
+      const msg = isInside
+        ? `Access Denied: ${existingAttendance.memberName} is already inside the gym today (Checked in at ${existingAttendance.checkIn}). Please check out first.`
+        : `Access Denied: ${existingAttendance.memberName} already completed attendance today (Checked in at ${existingAttendance.checkIn}, out at ${existingAttendance.checkOut}). Only 1 check-in per day is allowed.`;
+
+      return res.status(400).json({
+        success: false,
+        gateUnlocked: false,
+        alreadyCheckedIn: true,
+        message: msg,
+        attendance: existingAttendance,
+        member: user ? {
+          id: user._id,
+          _id: user._id,
+          name: user.name,
+          plan: user.plan || 'Standard',
+          status: user.status,
+          planExpiryDate: user.planExpiryDate,
+          phone: user.phone,
+          email: user.email,
+        } : {
+          id: existingAttendance.memberId,
+          _id: existingAttendance.memberId,
+          name: existingAttendance.memberName,
+          plan: 'Standard',
+          status: 'active',
+        },
+      });
+    }
+
     const record = await Attendance.create({
       memberId: user ? user._id.toString() : memberId || 'walkin',
       memberName: user ? user.name : memberName || 'Walk-in Member',

@@ -94,9 +94,9 @@ const groupedNavigation = {
     {
       section: 'Billing & Pass',
       items: [
-        { name: 'Membership & Chapa', path: '/member/membership', icon: CreditCard },
+        { name: 'Membership', path: '/member/membership', icon: CreditCard },
         { name: 'Payment Receipts', path: '/member/payments', icon: Receipt },
-        { name: 'My QR Pass & Profile', path: '/member/profile', icon: UserCircle },
+        { name: 'My Profile', path: '/member/profile', icon: UserCircle },
       ],
     },
     {

@@ -65,19 +65,24 @@ export default function AttendanceRecords() {
   };
 
   const handleManualCheckOut = async (id, memberName) => {
+    if (!id) {
+      toast.error('Unable to identify attendance record ID.');
+      return;
+    }
     const now = new Date();
     const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
     try {
-      await receptionistApi.checkOut(id);
-    } catch (err) {}
-
-    setAttendanceList((prev) =>
-      prev.map((item) =>
-        (item._id || item.id) === id ? { ...item, checkOut: timeStr, status: 'checked_out' } : item
-      )
-    );
-    toast.success(`Checked out ${memberName} at ${timeStr}`);
+      const res = await receptionistApi.checkOut(id);
+      setAttendanceList((prev) =>
+        prev.map((item) =>
+          (item._id || item.id) === id ? { ...item, checkOut: timeStr, status: 'checked_out' } : item
+        )
+      );
+      toast.success(res.message || `Checked out ${memberName} at ${timeStr}`);
+    } catch (err) {
+      toast.error(err.message || `Failed to check out ${memberName}`);
+    }
   };
 
   const handleExportCSV = () => {
@@ -347,7 +352,7 @@ export default function AttendanceRecords() {
                     <td className="px-4 py-3.5 text-right">
                       {isInside ? (
                         <button
-                          onClick={() => handleManualCheckOut(item.id, item.memberName)}
+                          onClick={() => handleManualCheckOut(item._id || item.id, item.memberName)}
                           className="px-2.5 py-1 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg border border-rose-200 transition-colors inline-flex items-center gap-1"
                         >
                           <LogOut className="w-3.5 h-3.5" />

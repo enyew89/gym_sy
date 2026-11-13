@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import {
   User, Mail, Phone, Calendar, Dumbbell, Shield,
   Award, Edit3, Save, X, CheckCircle2, HeartPulse,
-  Ruler, Scale, Target, Sparkles, AlertCircle, ArrowUpRight
+  Ruler, Scale, Target, Sparkles, AlertCircle, ArrowUpRight,
+  QrCode
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { members, staff } from '../../data/mockData';
-import { StatusBadge, PageHeader } from '../../components/ui';
+import { StatusBadge, PageHeader, Modal } from '../../components/ui';
 import { useAuth } from '../../context/AuthContext';
 import { memberApi } from '../../services/api';
 import toast from 'react-hot-toast';
@@ -21,6 +23,7 @@ export default function MemberProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   // Form states initialized with member data
   const [formData, setFormData] = useState({
@@ -712,14 +715,61 @@ export default function MemberProfile() {
                 <span className="text-slate-500">Assigned Locker</span>
                 <span className="font-bold text-indigo-600">{user?.assignedLocker || 'Standard Access'}</span>
               </div>
-              <div className="flex items-center justify-between py-1.5">
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
                 <span className="text-slate-500">Access Key</span>
                 <span className="font-semibold text-slate-700">Digital QR Pass</span>
+              </div>
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowQRModal(true)}
+                  className="w-full py-2 px-3 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-lg flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                >
+                  <QrCode className="w-3.5 h-3.5" />
+                  <span>Show My Digital QR Pass</span>
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Digital QR Pass Modal */}
+      <Modal
+        isOpen={showQRModal}
+        onClose={() => setShowQRModal(false)}
+        title="My Digital Gym Pass"
+        size="sm"
+      >
+        <div className="p-4 text-center space-y-4">
+          <div className="bg-slate-950 p-5 rounded-2xl inline-block shadow-lg border border-slate-800">
+            <div className="bg-white p-3 rounded-xl">
+              <QRCodeSVG
+                value={`GYM-PASS:${user?._id || user?.id || 'none'}:${user?.email || 'none'}`}
+                size={190}
+                level="H"
+                includeMargin={true}
+              />
+            </div>
+          </div>
+          <div>
+            <h4 className="font-bold text-slate-900 text-base">{user?.name || 'Member'}</h4>
+            <p className="text-xs text-slate-500 font-mono mt-0.5">
+              {user?.plan || 'Standard'} Member • ID: {(user?._id || user?.id || '').slice(-6).toUpperCase()}
+            </p>
+            <p className="text-[11px] text-slate-400 mt-2">
+              Hold this QR code up to the front desk turnstile camera for automatic entrance check-in.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowQRModal(false)}
+            className="w-full py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
+          >
+            Close
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }

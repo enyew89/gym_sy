@@ -258,6 +258,25 @@ router.get('/verify/:query', async (req, res) => {
       reason = `Membership expired on ${expiry ? expiry.toISOString().split('T')[0] : 'N/A'}. Renewal required before entry.`;
     }
 
+    // Check if member already checked in today (only 1 check-in per calendar day allowed)
+    const todayStr = new Date().toISOString().split('T')[0];
+    const existingAttendanceToday = await Attendance.findOne({
+      date: todayStr,
+      $or: [
+        { memberId: member._id.toString() },
+        { memberEmail: member.email.toLowerCase().trim() },
+      ],
+    });
+
+    if (existingAttendanceToday) {
+      eligible = false;
+      if (existingAttendanceToday.checkOut) {
+        reason = `${member.name} has already attended the gym today (Checked in at ${existingAttendanceToday.checkIn}, out at ${existingAttendanceToday.checkOut}). Only 1 check-in per day is permitted.`;
+      } else {
+        reason = `${member.name} is already inside the gym today (Checked in at ${existingAttendanceToday.checkIn}). Must check out before re-entering.`;
+      }
+    }
+
     const daysRemaining = expiry ? Math.ceil((expiry - now) / (1000 * 60 * 60 * 24)) : 0;
 
     const userObj = member.toObject();
@@ -322,36 +341,89 @@ router.post('/checkin', async (req, res) => {
       }
     }
 
+    if (!member) {
+      return res.status(404).json({
+        success: false,
+        gateUnlocked: false,
+        message: `No registered member found matching "${rawLookup}". Please verify the QR pass or register the member first.`,
+      });
+    }
+
     // Verify Eligibility
-    if (member) {
-      const now = new Date();
-      const expiry = member.planExpiryDate ? new Date(member.planExpiryDate) : null;
+    const now = new Date();
+    const expiry = member.planExpiryDate ? new Date(member.planExpiryDate) : null;
 
-      if (member.status === 'suspended') {
-        return res.status(403).json({
-          success: false,
-          gateUnlocked: false,
-          message: `Access Denied: ${member.name}'s account is suspended.`,
-          member,
-        });
-      }
+    if (member.status === 'suspended') {
+      return res.status(403).json({
+        success: false,
+        gateUnlocked: false,
+        message: `Access Denied: ${member.name}'s account is suspended.`,
+        member: {
+          id: member._id,
+          name: member.name,
+          plan: member.plan,
+          status: member.status,
+        },
+      });
+    }
 
-      if (member.status === 'expired' || (expiry && expiry < now)) {
-        return res.status(403).json({
-          success: false,
-          gateUnlocked: false,
-          message: `Access Denied: ${member.name}'s membership expired on ${expiry ? expiry.toISOString().split('T')[0] : 'N/A'}. Please renew.`,
-          member,
-        });
-      }
+    if (member.status === 'expired' || (expiry && expiry < now)) {
+      return res.status(403).json({
+        success: false,
+        gateUnlocked: false,
+        message: `Access Denied: ${member.name}'s membership expired on ${expiry ? expiry.toISOString().split('T')[0] : 'N/A'}. Please renew.`,
+        member: {
+          id: member._id,
+          name: member.name,
+          plan: member.plan,
+          status: 'expired',
+          planExpiryDate: member.planExpiryDate,
+        },
+      });
     }
 
     const now = new Date();
     const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     const dateStr = now.toISOString().split('T')[0];
 
+    // Enforce strictly 1 attendance check-in per member per calendar day
+    const targetMemberId = member ? member._id.toString() : (searchId || rawLookup);
+    const existingAttendance = await Attendance.findOne({
+      date: dateStr,
+      $or: [
+        { memberId: targetMemberId },
+        ...(member?.email ? [{ memberEmail: member.email.toLowerCase().trim() }] : []),
+        ...(searchEmail ? [{ memberEmail: searchEmail.toLowerCase().trim() }] : []),
+      ],
+    });
+
+    if (existingAttendance) {
+      const isInside = !existingAttendance.checkOut;
+      const msg = isInside
+        ? `Access Denied: ${existingAttendance.memberName} is already inside the gym today (Checked in at ${existingAttendance.checkIn}). Please check out first.`
+        : `Access Denied: ${existingAttendance.memberName} already completed attendance today (Checked in at ${existingAttendance.checkIn}, out at ${existingAttendance.checkOut}). Only 1 check-in per day is allowed.`;
+
+      return res.status(400).json({
+        success: false,
+        gateUnlocked: false,
+        alreadyCheckedIn: true,
+        message: msg,
+        attendance: existingAttendance,
+        member: {
+          id: member?._id || existingAttendance.memberId,
+          _id: member?._id || existingAttendance.memberId,
+          name: member?.name || existingAttendance.memberName,
+          plan: member?.plan || 'Standard',
+          status: member?.status || 'active',
+          planExpiryDate: member?.planExpiryDate,
+          phone: member?.phone,
+          email: member?.email || existingAttendance.memberEmail,
+        },
+      });
+    }
+
     const attendanceRecord = await Attendance.create({
-      memberId: member ? member._id.toString() : lookup,
+      memberId: member ? member._id.toString() : targetMemberId,
       memberName: member ? member.name : memberName || 'Walk-in Member',
       date: dateStr,
       checkIn: timeStr,
